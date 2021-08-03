@@ -1,0 +1,16 @@
+Parameters:
+  subnet1:
+    Type: String
+    Default: subnet-092a3b9ccccebb911
+  ec2name:
+    Type: String
+    Default: m4.large
+    Description: "The name of one ec2 instance"
+    
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0096398577720a4a3
+      InstanceType: !Ref ec2name
+      SubnetId: !Ref subnet1
