@@ -1,0 +1,98 @@
+# This is a comentary
+Parameters:
+# Never use "-" or "_" in Parameter's name
+  VpcCIDRTraining:
+    Default: 192.168.0.0/16
+    Description: VPC for example
+    Type: String
+
+  CIDRPrivateSubnet1:
+    Default: 192.168.10.0/24
+    Description: Range of IP's for private subnet1
+    Type: String  
+  
+  CIDRPrivateSubnet2:
+    Default: 192.168.11.0/24
+    Description: Range of IP's for private subnet2
+    Type: String    
+
+  CIDRPublicSubnet1:
+    Default: 192.168.20.0/24
+    Description: Range of IP's for public subnet1
+    Type: String  
+  
+  CIDRPublicSubnet2:
+    Default: 192.168.21.0/24
+    Description: Range of IP's for public subnet2
+    Type: String  
+
+  AZ1forMyVPC:
+    Default: sa-east-1a
+    Description: This is the AZ A parameter
+    Type: String
+
+  AZ3forMyVPC:
+    Default: sa-east-1c
+    Description: This is the AZ C parameter
+    Type: String
+
+# This is other comentary
+Resources:
+#####################################################################################
+# This is the VPC, highest level
+#####################################################################################
+  VpcOfLondon:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDRTraining
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags: [{"Key":"Name", "Value":"VPC for training"}]
+
+#####################################################################################
+# This is a Private Subnet1, intermediate level
+#####################################################################################
+  PrivateSubnet1ForMyEnv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref AZ1forMyVPC
+      CidrBlock: !Ref CIDRPrivateSubnet1
+      MapPublicIpOnLaunch: false
+      Tags: [{"Key":"Name", "Value":"Private Subnet for London office in AZ a"}]
+      VpcId: !Ref VpcOfLondon
+
+#####################################################################################
+# This is a Private Subnet2, intermediate level
+#####################################################################################
+  PrivateSubnet2ForMyEnv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref AZ3forMyVPC
+      CidrBlock: !Ref CIDRPrivateSubnet2
+      MapPublicIpOnLaunch: false
+      Tags: [{"Key":"Name", "Value":"Private Subnet for London office in AZ c"}]
+      VpcId: !Ref VpcOfLondon
+
+#####################################################################################
+# This is a Public Subnet1, intermediate level
+#####################################################################################
+  PublicSubnet1ForMyEnv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref AZ1forMyVPC
+      CidrBlock: !Ref CIDRPublicSubnet1
+      MapPublicIpOnLaunch: true
+      Tags: [{"Key":"Name", "Value":"Public Subnet for London office in AZ a"}]
+      VpcId: !Ref VpcOfLondon
+
+#####################################################################################
+# This is a Public Subnet2, intermediate level
+#####################################################################################
+  PublicSubnet2ForMyEnv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref AZ3forMyVPC
+      CidrBlock: !Ref CIDRPublicSubnet2
+      MapPublicIpOnLaunch: true
+      Tags: [{"Key":"Name", "Value":"Public Subnet for London office in AZ c"}]
+      VpcId: !Ref VpcOfLondon
