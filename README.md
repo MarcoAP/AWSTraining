@@ -14,3 +14,5 @@ https://calculator.aws/#/
 
 # CloudFormation:
 VPC Template: https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html
+
+S3 Bucket Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
