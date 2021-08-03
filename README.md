@@ -1,6 +1,6 @@
 # AWSTrainning
 This repository are used to give class about AWS
-by Marco Antonio Pereira
+<br><b>by Marco Antonio Pereira</b>
 
 To see the types of EC2 instances:
 https://aws.amazon.com/ec2/instance-types
