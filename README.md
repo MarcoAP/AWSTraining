@@ -34,7 +34,7 @@ Before to create [this lambda function link](https://github.com/MarcoAP/AWSTrain
 # Index:
 | Aws Services - Scripts  | Link |
 | ------------- |-------------:| 
-| VPC / Subnet / Internet Gateway | [link link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Network) |
+| VPC / Subnet / Internet Gateway | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Network) |
 | S3 Bucket | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/S3) |
 | EC2 | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/EC2) |
 | DynamoDB | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/DynamoDB) |
