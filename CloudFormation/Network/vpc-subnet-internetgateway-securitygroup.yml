@@ -1,0 +1,221 @@
+# This is a comentary
+#####################################################################################
+# 
+# This is a Big Block to indicate the Start of your CloudFormation with PARAMETERS
+#
+#####################################################################################
+Parameters:
+# Never use "-" or "_" in Parameter's name
+  VpcCIDRTraining:
+    Default: 192.168.0.0/16
+    Description: VPC for example
+    Type: String
+
+  CIDRPrivateSubnet1:
+    Default: 192.168.10.0/24
+    Description: Range of IP's for private subnet1
+    Type: String  
+  
+  CIDRPrivateSubnet2:
+    Default: 192.168.11.0/24
+    Description: Range of IP's for private subnet2
+    Type: String    
+
+  CIDRPublicSubnet1:
+    Default: 192.168.20.0/24
+    Description: Range of IP's for public subnet1
+    Type: String  
+  
+  CIDRPublicSubnet2:
+    Default: 192.168.21.0/24
+    Description: Range of IP's for public subnet2
+    Type: String  
+
+  AZ1forMyVPC:
+    Default: sa-east-1a
+    Description: This is the AZ A parameter
+    Type: String
+
+  AZ3forMyVPC:
+    Default: sa-east-1c
+    Description: This is the AZ C parameter
+    Type: String
+
+  SecurityGroupName:
+    Default: sglondontraining
+    Description: This security group will be used for trainings in London
+    Type: String
+
+  SecurityGroupDescription:
+    Default: This security group will be used for trainings in London
+    Type: String
+    Description: This security group will be used for trainings in London
+
+  InternetGatewayDescription:
+    Default: ig-london-training
+    Type: String
+    Description: This internet gateway will be used for trainings in London
+
+
+# This is other comentary
+#####################################################################################
+# 
+# This is a Big Block to indicate RESOURCES - This block is Required
+#
+#####################################################################################
+Resources:
+#####################################################################################
+# This is the VPC, highest level
+#####################################################################################
+  VpcOfLondon:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDRTraining
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags: [{"Key":"Name", "Value":"vpc-london-training"}]
+
+#####################################################################################
+# This is a Private Subnet1, intermediate level
+#####################################################################################
+  PrivateSubnet1ForMyEnv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref AZ1forMyVPC
+      CidrBlock: !Ref CIDRPrivateSubnet1
+      MapPublicIpOnLaunch: false
+      Tags: [{"Key":"Name", "Value":"sb-private1-for-london-training"}]
+      VpcId: !Ref VpcOfLondon
+
+#####################################################################################
+# This is a Private Subnet2, intermediate level
+#####################################################################################
+  PrivateSubnet2ForMyEnv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref AZ3forMyVPC
+      CidrBlock: !Ref CIDRPrivateSubnet2
+      MapPublicIpOnLaunch: false
+      Tags: [{"Key":"Name", "Value":"sb-private2-for-london-training"}]
+      VpcId: !Ref VpcOfLondon
+
+#####################################################################################
+# This is a Public Subnet1, intermediate level
+#####################################################################################
+  PublicSubnet1ForMyEnv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref AZ1forMyVPC
+      CidrBlock: !Ref CIDRPublicSubnet1
+      MapPublicIpOnLaunch: true
+      Tags: [{"Key":"Name", "Value":"sb-public1-for-london-training"}]
+      VpcId: !Ref VpcOfLondon
+
+#####################################################################################
+# This is a Public Subnet2, intermediate level
+#####################################################################################
+  PublicSubnet2ForMyEnv:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Ref AZ3forMyVPC
+      CidrBlock: !Ref CIDRPublicSubnet2
+      MapPublicIpOnLaunch: true
+      Tags: [{"Key":"Name", "Value":"sb-public2-for-london-training"}]
+      VpcId: !Ref VpcOfLondon
+
+#####################################################################################
+# This is a Security Group
+#####################################################################################
+  TrainingSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Ref SecurityGroupDescription
+      GroupName: !Ref SecurityGroupName
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 8080
+        ToPort: 8080
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: sg-london-training
+      VpcId: !Ref VpcOfLondon
+
+#####################################################################################
+# This is just the creation of Internet Gateway, need to be associated with one VPC
+#####################################################################################
+  InternetGatewayLondon:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref InternetGatewayDescription
+
+#####################################################################################
+# This is the association with one Internet Gateway already created to VPC
+#####################################################################################  
+  InternetGatewayAttachmentLondon:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGatewayLondon
+      VpcId: !Ref VpcOfLondon
+
+
+#####################################################################################
+# 
+# This is a Big Block to indicate OUTPUTS of your script - This block is Optional
+#
+#####################################################################################
+Outputs:
+  VpcOfLondon:
+    Description: A reference to the created VPC
+    Value: !Ref VpcOfLondon
+
+  PublicSubnetsForMyEnv:
+    Description: A list of the public subnets
+    Value: !Join [ ",", [ !Ref PublicSubnet1ForMyEnv, !Ref PublicSubnet2ForMyEnv ]]
+
+  PrivateSubnetsForMyEnv:
+    Description: A list of the private subnets
+    Value: !Join [ ",", [ !Ref PrivateSubnet1ForMyEnv, !Ref PrivateSubnet2ForMyEnv ]]
+
+  PublicSubnet1ForMyEnv:
+    Description: A reference to the public subnet in the 1st Availability Zone
+    Value: !Ref PublicSubnet1ForMyEnv
+
+  PublicSubnet2ForMyEnv:
+    Description: A reference to the public subnet in the 2nd Availability Zone
+    Value: !Ref PublicSubnet2ForMyEnv
+
+  PrivateSubnet1ForMyEnv:
+    Description: A reference to the private subnet in the 1st Availability Zone
+    Value: !Ref PrivateSubnet2ForMyEnv
+
+  PrivateSubnet2ForMyEnv:
+    Description: A reference to the private subnet in the 2nd Availability Zone
+    Value: !Ref PrivateSubnet2ForMyEnv
+
+  SecurityGroupForMyEnv:
+    Description: Security group with some rules
+    Value: !Ref TrainingSecurityGroup
