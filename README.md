@@ -28,4 +28,5 @@ DynamoDB Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuid
 
 
 ### Observation about this Lambda CloudFormation:
-Before create this lambda function you need to create this <a hreaf="https://github.com/MarcoAP/AWSTraining/blob/main/CloudFormation/S3/bucketArchiveAndBucketScripts.yml">bucket scripts</a> and insert your script like this zipped.
+Before create this lambda function you need to create [this bucket scripts link](https://github.com/MarcoAP/AWSTraining/blob/main/CloudFormation/S3/bucketArchiveAndBucketScripts.yml) and insert your script like this zipped.
+
