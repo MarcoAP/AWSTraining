@@ -1,0 +1,26 @@
+Resources:
+  DynamoDBTableForTraining:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: "PROVISIONED"
+      TableName: "tb_awstraining"
+      AttributeDefinitions:
+        - 
+          AttributeName: "bucketName"
+          AttributeType: "S"      
+        - 
+          AttributeName: "fileName"
+          AttributeType: "S"
+      KeySchema:
+        - 
+          AttributeName: "bucketName"
+          KeyType: "HASH"
+        - 
+          AttributeName: "fileName"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "1"
+        WriteCapacityUnits: "1"
+      Tags:
+        - Key: Name
+          Value: DynamoDBTableTraining
