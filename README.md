@@ -23,3 +23,5 @@ Security Group Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/Us
 S3 Bucket Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
 
 Lambda Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-function.html
+
+DynamoDB Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
