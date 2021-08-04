@@ -27,5 +27,5 @@ Lambda Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/
 DynamoDB Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
 
 
-##CloudFormation:
+## CloudFormation:
 ss
