@@ -32,11 +32,11 @@ Before to create [this lambda function link](https://github.com/MarcoAP/AWSTrain
 
 
 # Index:
-| Aws Services  | Link |
+| Aws Services - Scripts  | Link |
 | ------------- |-------------:| 
-| VPC / Subnet / Internet Gateway | link |
-| S3 Bucket | link |
-| EC2 | link |
-| DynamoDB | link |
-| Lambda Function | link |
+| VPC / Subnet / Internet Gateway | [link link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Network) |
+| S3 Bucket | [link link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/S3) |
+| EC2 | [link link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/EC2) |
+| DynamoDB | [link link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/DynamoDB) |
+| Lambda Function | [link link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Lambda) |
 
