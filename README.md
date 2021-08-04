@@ -27,5 +27,5 @@ Lambda Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/
 DynamoDB Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
 
 
-## CloudFormation:
-ss
+### Observation about this Lambda CloudFormation:
+Before create this lambda function you need to create this <a hreaf="https://github.com/MarcoAP/AWSTraining/blob/main/CloudFormation/S3/bucketArchiveAndBucketScripts.yml">bucket scripts</a> and insert your script like this zipped.
