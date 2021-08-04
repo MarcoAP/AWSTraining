@@ -1,4 +1,4 @@
-# AWSTrainning
+# AWSTraining
 This repository are used to give class about AWS
 <br><b>by Marco Antonio Pereira</b>
 
