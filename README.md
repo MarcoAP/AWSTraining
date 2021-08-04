@@ -15,6 +15,8 @@ https://calculator.aws/#/
 # CloudFormation:
 VPC Template: https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html
 
+Security Group Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
+
 S3 Bucket Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html
 
 Lambda Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-function.html
