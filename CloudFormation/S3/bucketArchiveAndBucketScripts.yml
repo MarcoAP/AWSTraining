@@ -1,0 +1,103 @@
+Parameters:
+  BucketArchiveName:
+    Description: The bucket will receive files from Aws Lambda
+    Default: bucket-archive-training-2021
+    Type: String
+
+  BucketScriptsName:
+    Description: This if is only for Scripts
+    Default: bucket-scripts-training-2021
+    Type: String    
+    
+
+Resources:
+  BucketArchive:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: LogDeliveryWrite
+      BucketName: !Ref BucketArchiveName
+      VersioningConfiguration:
+        Status: Suspended
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+        IgnorePublicAcls: True
+        RestrictPublicBuckets: True
+      LifecycleConfiguration:
+        Rules:
+          - Id: GlacierRule
+            Status: Enabled
+            ExpirationInDays: 365
+            Transitions:
+              - TransitionInDays: 90
+                StorageClass: GLACIER
+      Tags:
+        - Key: Name
+          Value: Bucket Raw
+
+  BucketScripts:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: LogDeliveryWrite
+      BucketName: !Ref BucketScriptsName
+      VersioningConfiguration:
+        Status: Suspended
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+        IgnorePublicAcls: True
+        RestrictPublicBuckets: True
+      LifecycleConfiguration:
+        Rules:
+          - Id: GlacierRule
+            Status: Enabled
+            ExpirationInDays: 365
+            Transitions:
+              - TransitionInDays: 90
+                StorageClass: GLACIER
+      Tags:
+        - Key: Name
+          Value: Bucket for Scripts
+
+
+Outputs:
+  BucketArchive:
+    Description: The Bucket Raw
+    Value: !Ref BucketArchive
+
+  BucketScripts:
+    Description: The Bucket Scripts
+    Value: !Ref BucketScripts
+
+  BucketArchiveARN:
+    Description: The Bucket Raw
+    Value: !GetAtt BucketArchive.Arn
+
+  BucketScriptsARN:
+    Description: The Bucket Raw
+    Value: !GetAtt BucketScripts.Arn
+
+################################################################################################################################
+# Just two observations here:
+# - When you have a sub-property as a LIST [] like "Tags", you can use two sintax for Lists in CloudFormation:
+#  Tags: [{"key":"value of key", "value":"value of the value in key"}]
+# or like the sintax above
+# 
+#
+# The second one is about Notifications in Bucket:
+#
+#      NotificationConfiguration:
+#        LambdaConfigurations:
+#          - Event: s3:ObjectCreated:*
+#            Function: !Ref ArnLambda
+#            Filter:
+#              S3Key:
+#                Rules:
+#                  - Name: prefix
+#                    Value: inbound/                
+#                  - Name: suffix
+#                    Value: .TXT
+#
+# When you want to use trigger in AWS Lambda, for example, you need to create this notification to inform Lambda
+# there are new files in the bucket, in a specific sub-folder, with one specific suffix.
+################################################################################################################################
