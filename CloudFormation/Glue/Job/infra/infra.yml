@@ -1,0 +1,141 @@
+Parameters:
+  GlueWorkflowName:
+    Description: Name of my workflow
+    Default: GlueWorkflowTraining
+    Type: String
+  
+  GlueWorkflowDescription:
+    Description: This workflow will be use when we receive a trigger from an AWS Lambda
+    Default: This workflow will be use when we receive a trigger from an AWS Lambda
+    Type: String
+
+  GlueJobTrigger1Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob1Spark_TextToParquet
+    Type: String
+  
+  GlueJobTrigger1Description:
+    Description: This JobTrigger1 will convert our Text/CSV files in Parquet
+    Default: This JobTrigger1 will convert our Text/CSV files in Parquet
+    Type: String
+  
+  GlueJobTrigger2Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob2Crawler
+    Type: String
+  
+  GlueJobTrigger2Description:
+    Description: This JobTrigger2 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Default: This JobTrigger2 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Type: String
+
+# Just one observation here, never use Upper case in Database name. I'll receive a error about this during creation
+  GlueDatabaseName:
+    Type: String
+    Default: glue_database_raw_zone
+
+  BucketScriptsName:
+    Description: This if is only for Scripts
+    Default: bucket-scripts-training-2021
+    Type: String 
+
+  BucketDatasName:
+    Description: This if is only for Datas
+    Default: bucket-datas-training-2021
+    Type: String 
+
+Resources:
+##############################################################################
+# Let's create a new database in Glue DataCatalog to put our datas
+##############################################################################
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Sub "${AWS::AccountId}"
+      DatabaseInput: 
+        Name: !Ref GlueDatabaseName
+
+  GlueJob1Spark:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: !Ref GlueJobTrigger1Name
+      Role: !GetAtt GlueRole.Arn
+      ExecutionProperty:
+          MaxConcurrentRuns: 1
+      Command:
+          Name: "glueetl"
+          ScriptLocation: !Sub "s3://${BucketScriptsName}/scripts/glue/job1spark/job1spark.py"
+          PythonVersion: "3"
+      DefaultArguments:
+#          --extra-py-files: #If you have some libraries, just specify here (full path of the path)
+          --TempDir: !Sub "s3://${BucketScriptsName}/tmp/"
+          --job-bookmark-option: "job1spark"
+          --job-language: "python"
+          --enable-glue-datacatalog: "True"
+      MaxRetries: 0
+      Timeout: 240
+      GlueVersion: "2.0"
+      NumberOfWorkers: 4
+      WorkerType: "G.1X"
+
+##############################################################################
+# Let's run our first Crawler if the last job work well, but we need appoint
+# the specific directory to read the files that we want add in DataCatalog
+##############################################################################
+#  GlueJob2Crawler:
+#      Type: "AWS::Glue::Crawler"
+#      Properties:
+#          Name: !Ref GlueJobTrigger2Name
+#          Role: !GetAtt GlueRole.Arn
+#          Targets:
+#              S3Targets:
+#                  - Path: !Sub "s3://${BucketDatasName}/raw/"
+#          DatabaseName: !Ref GlueDatabaseName
+#          SchemaChangePolicy:
+#              UpdateBehavior: "UPDATE_IN_DATABASE"
+#              DeleteBehavior: "DELETE_FROM_DATABASE"
+#          TablePrefix: "tb_"
+
+##############################################################################
+# We are creating a role to be more practicle, but in one production env
+# we hope one specific security area could provide the exactly role to use
+##############################################################################
+  GlueRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: S3
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - ec2:*
+                  - logs:*      
+                  - glue:*    
+                  - iam:*         
+                Resource:
+                  - !Sub arn:aws:s3:::${BucketDatasName}
+                  - !Sub arn:aws:s3:::${BucketDatasName}/*
+        - PolicyName: VPC
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:*
+                  - ec2:*
+                  - logs:*      
+                  - glue:*  
+                  - iam:*    
+                Resource: '*'  
