@@ -47,7 +47,6 @@ Before to create [this lambda function link](https://github.com/MarcoAP/AWSTrain
 | Lambda Function | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Lambda) |
 | Glue Workflow | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Glue/Workflow) |
 | Glue Job | next |
-| Glue Crawler | next |
 
 
 # Use case
