@@ -32,6 +32,8 @@ Glue Trigger Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/User
 
 Glue Job Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-glue-job.html
 
+Glue Crawler Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-glue-crawler.html
+
 
 ### Observation about my Lambda CloudFormation
 Before to create [this lambda function link](https://github.com/MarcoAP/AWSTraining/blob/main/CloudFormation/Lambda/lambdaWithBucketNotification.yml) you need to create [this bucket for scripts link](https://github.com/MarcoAP/AWSTraining/blob/main/CloudFormation/S3/bucketArchiveAndBucketScripts.yml) firstly and then insert your scripts [like this link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Lambda/scripts/lambda) but all need be zipped.
