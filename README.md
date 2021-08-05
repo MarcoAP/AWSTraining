@@ -15,7 +15,7 @@ AWS SDK Reference Guide:
 https://aws.amazon.com/sdk-for-python/
 
 
-# CloudFormation:
+# CloudFormation
 VPC Template: https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html
 
 Security Group Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
@@ -31,11 +31,11 @@ Glue Workflow Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/Use
 Glue Job Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-glue-job.html
 
 
-### Observation about my Lambda CloudFormation:
+### Observation about my Lambda CloudFormation
 Before to create [this lambda function link](https://github.com/MarcoAP/AWSTraining/blob/main/CloudFormation/Lambda/lambdaWithBucketNotification.yml) you need to create [this bucket for scripts link](https://github.com/MarcoAP/AWSTraining/blob/main/CloudFormation/S3/bucketArchiveAndBucketScripts.yml) firstly and then insert your scripts [like this link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Lambda/scripts/lambda) but all need be zipped.
 
 
-# Index:
+# Index
 | Aws Services - Scripts  | Link |
 | ------------- |-------------:| 
 | VPC / Subnet / Internet Gateway | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Network) |
@@ -44,3 +44,5 @@ Before to create [this lambda function link](https://github.com/MarcoAP/AWSTrain
 | DynamoDB | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/DynamoDB) |
 | Lambda Function | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Lambda) |
 
+# Use case
+![alt text](https://github.com/[MarcoAP]/[AWSTraining]/blob/[master]/image.jpg?raw=true)
