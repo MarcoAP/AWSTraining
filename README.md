@@ -45,4 +45,4 @@ Before to create [this lambda function link](https://github.com/MarcoAP/AWSTrain
 | Lambda Function | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Lambda) |
 
 # Use case
-![alt text](https://github.com/MarcoAP/AWSTraining/blob/master/image.jpg?raw=true)
+![alt text](https://github.com/MarcoAP/AWSTraining/blob/master/Exercise1.jpg?raw=true)
