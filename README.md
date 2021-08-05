@@ -28,6 +28,8 @@ DynamoDB Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuid
 
 Glue Workflow Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-glue-workflow.html
 
+Glue Trigger Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-glue-trigger.html
+
 Glue Job Template: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-glue-job.html
 
 
