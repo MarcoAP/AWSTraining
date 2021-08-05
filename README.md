@@ -48,7 +48,7 @@ Before to create [this lambda function link](https://github.com/MarcoAP/AWSTrain
 | DynamoDB | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/DynamoDB) |
 | Lambda Function | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Lambda) |
 | Glue Workflow | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Glue/Workflow) |
-| Glue Job | next |
+| Glue Job | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Glue/Job) |
 
 
 # Use case
