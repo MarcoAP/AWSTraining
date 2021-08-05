@@ -43,6 +43,9 @@ Before to create [this lambda function link](https://github.com/MarcoAP/AWSTrain
 | EC2 | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/EC2) |
 | DynamoDB | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/DynamoDB) |
 | Lambda Function | [link](https://github.com/MarcoAP/AWSTraining/tree/main/CloudFormation/Lambda) |
+| Glue Workflow | Construction |
+| Glue Job | Construction |
+| Glue Crawler | Construction |
 
 # Use case
 ![plot](./html/img/Exercise1.jpg)
