@@ -57,3 +57,6 @@ Before to create [this lambda function link](https://github.com/MarcoAP/AWSTrain
 
 # Use case
 ![plot](./html/img/Exercise1.jpg)
+
+# Glue Workflow
+![plot](./html/img/GlueWorkflow.png)
