@@ -1,0 +1,140 @@
+####################################################################################
+#
+# CloudFormation - AWS GLUE
+#
+####################################################################################
+Parameters:
+  GlueWorkflowName:
+    Description: Name of my workflow
+    Default: GlueWorkflowTraining
+    Type: String
+  
+  GlueWorkflowDescription:
+    Description: This workflow will be use when we receive a trigger from an AWS Lambda
+    Default: This workflow will be use when we receive a trigger from an AWS Lambda
+    Type: String
+
+  GlueJobTrigger1Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob1Spark_TextToParquet
+    Type: String
+  
+  GlueJobTrigger1Description:
+    Description: This JobTrigger1 will convert our Text/CSV files in Parquet
+    Default: This JobTrigger1 will convert our Text/CSV files in Parquet
+    Type: String
+  
+  GlueJobTrigger2Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob2Crawler
+    Type: String
+  
+  GlueJobTrigger2Description:
+    Description: This JobTrigger2 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Default: This JobTrigger2 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Type: String
+
+  GlueJobTrigger3Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob3Spark_ParquetCount
+    Type: String
+  
+  GlueJobTrigger3Description:
+    Description: This JobTrigger3 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Default: This JobTrigger3 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Type: String
+
+  GlueJobTrigger4Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob4Crawler
+    Type: String
+  
+  GlueJobTrigger4Description:
+    Description: This JobTrigger4 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Default: This JobTrigger4 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Type: String
+
+Resources:
+####################################################################################
+# Firstly, we need to create a Workflow
+####################################################################################
+  MyGlueWorkflow:
+    Type: AWS::Glue::Workflow
+    Properties:
+      Description: !Ref GlueWorkflowDescription
+      Name: !Ref GlueWorkflowName
+
+####################################################################################
+# Now we have a Glue Workflow, we need create a Trigger to Job 1
+# Observation, this first Trigger don't need "Predicate" property
+####################################################################################
+  GlueJob1Spark:
+    Type: AWS::Glue::Trigger
+    Properties:
+      Actions:
+        - JobName: !Ref GlueJobTrigger1Name
+      Description: !Ref GlueJobTrigger1Description
+      Name: !Ref GlueJobTrigger1Name
+      Type: ON_DEMAND
+      WorkflowName: !Ref MyGlueWorkflow
+
+####################################################################################
+# Now we need to start this Crawler if the last one Job work successfully
+####################################################################################
+  GlueJob2Crawler:
+    Type: AWS::Glue::Trigger
+    Properties:
+      Actions:
+        - CrawlerName: !Ref GlueJobTrigger2Name
+      Description: !Ref GlueJobTrigger2Description
+      Name: !Ref GlueJobTrigger2Name
+      Predicate:
+        # in this part you need to put one condition to start this trigger
+        Logical: ANY
+        Conditions:
+          - JobName: !Ref GlueJobTrigger1Name
+            State: SUCCEEDED
+            LogicalOperator: EQUALS
+      StartOnCreation: True
+      Type: CONDITIONAL
+      WorkflowName: !Ref MyGlueWorkflow
+
+####################################################################################
+# So we have another Spark Job called it if the previous Crawler works
+####################################################################################
+  GlueJob3Spark:
+    Type: AWS::Glue::Trigger
+    Properties:
+      Actions:
+        - JobName: !Ref GlueJobTrigger3Name
+      Description: !Ref GlueJobTrigger3Description
+      Name: !Ref GlueJobTrigger3Name
+      Predicate:
+        Logical: ANY
+        Conditions:
+          - CrawlerName: !Ref GlueJobTrigger2Name
+            CrawlState: SUCCEEDED
+            LogicalOperator: EQUALS
+      StartOnCreation: True
+      Type: CONDITIONAL
+      WorkflowName: !Ref MyGlueWorkflow
+
+####################################################################################
+# Finally, the last one Crawler adding the last data transformation in Data Catalog
+####################################################################################      
+  GlueJob4Crawler:
+    Type: AWS::Glue::Trigger
+    Properties:
+      Actions:
+        - CrawlerName: !Ref GlueJobTrigger4Name
+      Description: !Ref GlueJobTrigger4Description
+      Name: !Ref GlueJobTrigger4Name
+      Predicate:
+        Logical: ANY
+        Conditions:
+          - JobName: !Ref GlueJobTrigger3Name
+            State: SUCCEEDED
+            LogicalOperator: EQUALS
+      StartOnCreation: True
+      Type: CONDITIONAL
+      WorkflowName: !Ref MyGlueWorkflow
