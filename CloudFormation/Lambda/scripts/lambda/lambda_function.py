@@ -1,9 +1,13 @@
 import json
 import urllib.parse
 import boto3
+import os
+from time import sleep
+from datetime import date, datetime
 
 s3 = boto3.client('s3')
 dynamodb = boto3.client('dynamodb')
+glue = boto3.client('glue', region_name='sa-east-1')
 
 print("Starting Lambda: lambda-move-file")
 
@@ -27,7 +31,7 @@ def lambda_handler(event, context):
         file_name = split_path_origem[-1]
         print("file_name = ", file_name)
         
-        dynamodb.put_item(TableName='tb_awstraining', Item={'records':{'S':file_name}})
+        dynamodb.put_item(TableName='tb_awstraining', Item={'bucketName':{'S':bucket},'fileName':{'S':file_name}})
         print("Recording the name of the file received in DynamoDB Table")
         
         # load Raw filw and decode in UTF-8
@@ -46,13 +50,63 @@ def lambda_handler(event, context):
         copySource = {'Bucket': bucketNameSource, 'Key': fileKeySource}
         copyDestination = "{sub_folder}/{file_destination}".format(sub_folder=sub_folder,file_destination=file_destination)
         copy(copySource, copyDestination)
-        delete(bucketNameSource, fileKeySource)
-
-        print("CONTENT TYPE: " + response['ContentType'])
         
-        print("Ending Lambda: lambda-move-file")
+        dctOtherProperties = {
+            'bucketNameSource': str(bucketNameSource),
+            'fileKeySource': str(fileKeySource),
+            'fileName': str(file_destination),
+            "kms_key": os.environ.get('KMS_KEY', '6cf8ba8c-a35c-4b7e-ae6d-d756247e4243'),
+            'bucket_raw': os.environ.get('RAW_BUCKET', 'bucket-raw-training-2021'),
+            'env': os.environ.get('ENV', 'develop_env')
+        }
+        
+        print(f"dctOtherProperties= : {dctOtherProperties}")
 
-        return response['ContentType']
+        start = True
+        
+        if start:
+            try:
+                
+                delete(bucket_=bucketNameSource, file_=fileKeySource)
+                print("[!] [ Deleting file in raw folder: " + fileKeySource)
+                
+                workflowName = 'GlueWorkflowTraining'
+                print("# Workflow: " + workflowName)
+                
+                response = glue.start_workflow_run(Name=workflowName)
+                print(f"[+] Printing all response of one the Workflow {response}")
+                
+                workflow_id = response['RunId']
+                print(f"[+] Starting Glue Workflow {workflow_id}")
+                
+                glue.put_workflow_run_properties(
+                    Name=workflowName, 
+                    RunId=workflow_id, 
+                    RunProperties=dctOtherProperties
+                )
+                
+                print("[!] [ Finishing Glue Workflow: " + workflow_id)
+                
+                return {
+                    'statusCode': 0,
+                    'message': f'Workflow {workflow_id} started'
+                }
+                
+            except Exception as e:
+                print(e)
+                print(f" [!] Error with Glue Workflow {e}.")
+                return {
+                    'statusCode': -1,
+                    'message': e
+                }
+        else:
+            response = f"{file_name} file repeated or not found."
+            print("[!] Finishing Lambda")
+            return {
+                'statusCode': -1,
+                'message': response
+            }
+
     except Exception as e:
         print(e)
         print('Error when I get the file {} in the bucket {}. Have certain your file exist.'.format(key, bucket))
@@ -77,3 +131,4 @@ def copy(source, destination):
 
 def delete(bucket_, file_):
     s3.delete_object(Bucket=bucket_, Key=file_)
+    
