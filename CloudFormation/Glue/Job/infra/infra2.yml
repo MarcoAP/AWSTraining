@@ -1,0 +1,261 @@
+Parameters:
+  GlueWorkflowName:
+    Description: Name of my workflow
+    Default: GlueWorkflowTraining
+    Type: String
+  
+  GlueWorkflowDescription:
+    Description: This workflow will be use when we receive a trigger from an AWS Lambda
+    Default: This workflow will be use when we receive a trigger from an AWS Lambda
+    Type: String
+
+  GlueJobTrigger1Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob1Spark_TextToParquet
+    Type: String
+  
+  GlueJobTrigger1Description:
+    Description: This JobTrigger1 will convert our Text/CSV files in Parquet
+    Default: This JobTrigger1 will convert our Text/CSV files in Parquet
+    Type: String
+  
+  GlueJobTrigger2Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob2Crawler
+    Type: String
+  
+  GlueJobTrigger2Description:
+    Description: This JobTrigger2 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Default: This JobTrigger2 will run only if GlueJob1Spark_TextToParquet work successfully and add all files in Glue Data Catalog
+    Type: String
+
+  GlueJobTrigger3Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob3Spark_ParquetCount
+    Type: String
+  
+  GlueJobTrigger3Description:
+    Description: This JobTrigger3 will do any data transformation with the Raw Data 
+    Default: This JobTrigger3 will do any data transformation with the Raw Data
+    Type: String
+  
+  GlueJobTrigger4Name:
+    Description: Name will appear in glue workflow console
+    Default: GlueJob4Crawler
+    Type: String
+  
+  GlueJobTrigger4Description:
+    Description: This JobTrigger4 will run only if GlueJob3Spark_ParquetCount work successfully and add all files in Glue Data Catalog
+    Default: This JobTrigger4 will run only if GlueJob3Spark_ParquetCount work successfully and add all files in Glue Data Catalog
+    Type: String
+
+# Just one observation here, never use Upper case in Database name. I'll receive a error about this during creation
+  GlueDatabaseRawName:
+    Type: String
+    Default: glue_database_raw_zone
+
+  GlueDatabaseSpecName:
+    Type: String
+    Default: glue_database_spec_zone
+
+  BucketScriptsName:
+    Description: This if is only for Scripts
+    Default: bucket-scripts-training-2021
+    Type: String 
+
+  BucketDatasName:
+    Description: This if is only for Datas
+    Default: bucket-datas-training-2021
+    Type: String 
+
+  RoleArn:
+    Default: "arn:aws:iam::850202893763:role/Politicas_para_GLUE"
+    Type: String
+
+  Vpcid:
+    Type: String
+    Default: "vpc-0264149bda9773d96"
+
+  SecurityGroup:
+    Type: String
+    Default: "sg-0c4825300986ebac7"
+
+  Subnet:
+    Type: String
+    Default: "subnet-0334446cbf0cba3cc"
+
+  KmsS3Arn:
+    Type: String
+    Default: "arn:aws:kms:sa-east-1:850202893763:key/6cf8ba8c-a35c-4b7e-ae6d-d756247e4243"
+
+Resources:
+##############################################################################
+# Creating a secure configuration associate KMS KEY (permissions) with jobs
+##############################################################################
+  GlueSecurityConf:
+      Type: "AWS::Glue::SecurityConfiguration"
+      Properties:
+          EncryptionConfiguration:
+              S3Encryptions:
+                  - KmsKeyArn: !Ref KmsS3Arn
+                    S3EncryptionMode: SSE-KMS
+          Name: "kms-awstraining"
+
+##############################################################################
+# Let's create a new database in Glue DataCatalog to put our datas
+##############################################################################
+  GlueDBRawName:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Sub "${AWS::AccountId}"
+      DatabaseInput: 
+        Name: !Ref GlueDatabaseRawName
+
+##############################################################################
+# Let's create the second database in Glue DataCatalog to put our spec datas
+##############################################################################
+  GlueDBSpecName:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Sub "${AWS::AccountId}"
+      DatabaseInput: 
+        Name: !Ref GlueDatabaseSpecName
+
+##############################################################################
+# Let's put glue job 1 script and configurations (is different from workflow)
+##############################################################################
+  GlueJob1Spark:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: !Ref GlueJobTrigger1Name
+#      Role: !GetAtt GlueRole.Arn
+      Role: !Ref RoleArn
+      ExecutionProperty:
+          MaxConcurrentRuns: 10
+      Command:
+          Name: "glueetl"
+          ScriptLocation: !Sub "s3://${BucketScriptsName}/scripts/glue/job1spark/job1spark.py"
+          PythonVersion: "3"
+      DefaultArguments:
+#          --extra-py-files: #If you have some libraries, just specify here (full path of the path)
+          --TempDir: !Sub "s3://${BucketScriptsName}/tmp/"
+          --job-bookmark-option: "job-bookmark-disable"
+          --job-language: "python"
+          --enable-glue-datacatalog: ""
+          --enable-continuous-cloudwatch-log: "True"
+      MaxRetries: 0
+      Timeout: 240
+      GlueVersion: "2.0"
+      SecurityConfiguration: !Ref GlueSecurityConf
+      NumberOfWorkers: 4
+      WorkerType: "G.1X"
+
+##############################################################################
+# Let's run our first Crawler if the last job work well, but we need appoint
+# the specific directory to read the files that we want add in DataCatalog
+##############################################################################
+  GlueJob2Crawler:
+      Type: "AWS::Glue::Crawler"
+      Properties:
+          Name: !Ref GlueJobTrigger2Name
+#          Role: !GetAtt GlueRole.Arn
+          Role: !Ref RoleArn
+          Targets:
+              S3Targets:
+                  - Path: !Sub "s3://${BucketDatasName}/raw/"
+          DatabaseName: !Ref GlueDatabaseRawName
+          SchemaChangePolicy:
+              UpdateBehavior: "UPDATE_IN_DATABASE"
+              DeleteBehavior: "DELETE_FROM_DATABASE"
+          TablePrefix: "tb_raw_"
+
+##############################################################################
+# Let's put glue job 3 script and configurations (is different from workflow)
+##############################################################################
+  GlueJob3Spark:
+    Type: AWS::Glue::Job
+    Properties:
+      Name: !Ref GlueJobTrigger3Name
+#      Role: !GetAtt GlueRole.Arn
+      Role: !Ref RoleArn
+      ExecutionProperty:
+          MaxConcurrentRuns: 10
+      Command:
+          Name: "glueetl"
+          ScriptLocation: !Sub "s3://${BucketScriptsName}/scripts/glue/job2spark/job2spark.py"
+          PythonVersion: "3"
+      DefaultArguments:
+#          --extra-py-files: #If you have some libraries, just specify here (full path of the path)
+          --TempDir: !Sub "s3://${BucketScriptsName}/tmp/"
+          --job-bookmark-option: "job-bookmark-disable"
+          --job-language: "python"
+          --enable-glue-datacatalog: ""
+          --enable-continuous-cloudwatch-log: "True"
+      MaxRetries: 0
+      Timeout: 240
+      GlueVersion: "2.0"
+      SecurityConfiguration: !Ref GlueSecurityConf
+      NumberOfWorkers: 4
+      WorkerType: "G.1X"
+
+##############################################################################
+# The final Glue Crawler
+##############################################################################
+  GlueJob4Crawler:
+      Type: "AWS::Glue::Crawler"
+      Properties:
+          Name: !Ref GlueJobTrigger4Name
+#          Role: !GetAtt GlueRole.Arn
+          Role: !Ref RoleArn
+          Targets:
+              S3Targets:
+                  - Path: !Sub "s3://${BucketDatasName}/spec/"
+          DatabaseName: !Ref GlueDatabaseSpecName
+          SchemaChangePolicy:
+              UpdateBehavior: "UPDATE_IN_DATABASE"
+              DeleteBehavior: "DELETE_FROM_DATABASE"
+          TablePrefix: "tb_spec_"
+
+##############################################################################
+# We are creating a role to be more practicle, but in one production env
+# we hope one specific security area could provide the exactly role to use
+##############################################################################
+#  GlueRole:
+#    Type: 'AWS::IAM::Role'
+#    Properties:
+#      AssumeRolePolicyDocument:
+#        Version: '2012-10-17'
+#        Statement:
+#          - Effect: Allow
+#            Principal:
+#              Service:
+#                - lambda.amazonaws.com
+#            Action:
+#              - 'sts:AssumeRole'
+#      Policies:
+#        - PolicyName: S3
+#          PolicyDocument:
+#            Version: '2012-10-17'
+#            Statement:
+#              - Effect: Allow
+#                Action:
+#                  - s3:*
+#                  - ec2:*
+#                  - logs:*   
+#                  - glue:*    
+#                  - iam:* 
+#                Resource:
+#                  - !Sub arn:aws:s3:::${BucketDatasName}
+#                  - !Sub arn:aws:s3:::${BucketDatasName}/*
+#        - PolicyName: VPC
+#          PolicyDocument:
+#            Version: '2012-10-17'
+#            Statement:
+#              - Effect: Allow
+#                Action:
+#                  - s3:*
+#                  - ec2:*
+#                  - logs:*      
+#                  - glue:*  
+#                  - iam:*    
+#                Resource: '*'  
