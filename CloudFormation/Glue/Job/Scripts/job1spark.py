@@ -18,19 +18,22 @@ workflow_params = glue_client.get_workflow_run_properties(
     RunId=workflow_run_id
 )["RunProperties"]
 
+print("Params= ", workflow_params)
+
 sc = SparkContext()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
 
-class Job1Spark:
+df = spark.sql("show databases")
+df.show()
 
-    df = spark.sql("show databases")
-    print(df.collect())
+path_in = "s3://bucket-raw-training-2021/staging/" + workflow_params['fileName']
+df = spark.read.format("csv").option("delimiter",",").option("header","true").load(path_in)
+df.show()
 
-if __name__ == '__main__':
-    obj = Job1Spark()
-    obj.start()
+path_out = "s3://bucket-datas-training-2021/raw/" + workflow_params['fileName'].split(".")[0] + "/"
+df.write.format("parquet").mode("overwrite").save(path_out)
 
 job.commit()
